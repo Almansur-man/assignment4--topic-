@@ -1,16 +1,27 @@
 package kz.aitu.repository;
 
+
 import kz.aitu.exception.DatabaseOperationException;
 import kz.aitu.model.DrinkItem;
 import kz.aitu.model.FoodItem;
 import kz.aitu.model.MenuItem;
 import kz.aitu.utils.DatabaseConnection;
+import kz.aitu.repository.interfaces.CrudRepository;
+
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class MenuItemRepository {
+public class MenuItemRepository
+        implements CrudRepository<MenuItem, Integer> {
+
+
+    @Override
+    public void delete(Integer id) {
+        delete(id.intValue());
+    }
 
     public MenuItem create(MenuItem item) {
         String sql = "INSERT INTO menu_items(name, item_type, price, calories, volume_ml) " +
@@ -20,7 +31,7 @@ public class MenuItemRepository {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, item.getName());
-            ps.setString(2, item.getEntityType());
+
             ps.setDouble(3, item.getPrice());
 
             if (item instanceof FoodItem fi) {
@@ -53,6 +64,11 @@ public class MenuItemRepository {
         }
     }
 
+    @Override
+    public Optional<MenuItem> findById(Integer integer) {
+        return Optional.empty();
+    }
+
     public List<MenuItem> getAll() {
         String sql = "SELECT id, name, item_type, price, calories, volume_ml " +
                 "FROM menu_items ORDER BY id";
@@ -74,6 +90,10 @@ public class MenuItemRepository {
         }
     }
 
+    public List<MenuItem> findAll() {
+        return getAll();
+    }
+
     public MenuItem getById(int id) {
         String sql = "SELECT id, name, item_type, price, calories, volume_ml " +
                 "FROM menu_items WHERE id=?";
@@ -92,6 +112,12 @@ public class MenuItemRepository {
         }
     }
 
+    @Override
+    public MenuItem update(MenuItem entity) {
+        // если у MenuItem есть getId() — используй:
+        update(entity.getId(), entity);
+        return entity;
+    }
     public void update(int id, MenuItem item) {
         String sql = "UPDATE menu_items SET name=?, price=?, calories=?, volume_ml=? WHERE id=?";
 
@@ -163,3 +189,4 @@ public class MenuItemRepository {
         return new DrinkItem(id, name, price, volumeMl);
     }
 }
+
